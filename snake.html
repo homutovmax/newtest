@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Змейка</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background: #1a1a2e;
+            font-family: Arial, sans-serif;
+        }
+        #game-container {
+            text-align: center;
+        }
+        #score {
+            color: #fff;
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        #gameCanvas {
+            border: 4px solid #4a4a6a;
+            border-radius: 8px;
+            background: #16213e;
+        }
+        #message {
+            color: #fff;
+            font-size: 20px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <div id="score">Счёт: 0</div>
+        <canvas id="gameCanvas" width="400" height="400"></canvas>
+        <div id="message">Используйте стрелки для управления</div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const messageEl = document.getElementById('message');
+
+        const gridSize = 20;
+        const tileCount = canvas.width / gridSize;
+        const baseSpeed = 240;
+        const speedIncrease = 10;
+
+        let snake = [];
+        let food = { x: 0, y: 0 };
+        let direction = { x: 0, y: 0 };
+        let nextDirection = { x: 0, y: 0 };
+        let score = 0;
+        let gameOver = false;
+        let gameLoop;
+
+        function getSpeed() {
+            const level = Math.floor(score / 10);
+            return Math.max(40, baseSpeed - level * speedIncrease);
+        }
+
+        function init() {
+            snake = [
+                { x: 10, y: 10 },
+                { x: 9, y: 10 },
+                { x: 8, y: 10 }
+            ];
+            direction = { x: 1, y: 0 };
+            nextDirection = { x: 1, y: 0 };
+            score = 0;
+            gameOver = false;
+            placeFood();
+            updateScore();
+            messageEl.textContent = 'Используйте стрелки для управления';
+            clearInterval(gameLoop);
+            gameLoop = setInterval(gameStep, getSpeed());
+        }
+
+        function placeFood() {
+            food.x = Math.floor(Math.random() * tileCount);
+            food.y = Math.floor(Math.random() * tileCount);
+            for (let segment of snake) {
+                if (segment.x === food.x && segment.y === food.y) {
+                    placeFood();
+                    return;
+                }
+            }
+        }
+
+        function updateScore() {
+            scoreEl.textContent = 'Счёт: ' + score;
+        }
+
+        function gameStep() {
+            if (gameOver) return;
+
+            direction = nextDirection;
+
+            const head = {
+                x: snake[0].x + direction.x,
+                y: snake[0].y + direction.y
+            };
+
+            if (head.x < 0 || head.x >= tileCount || head.y < 0 || head.y >= tileCount) {
+                endGame();
+                return;
+            }
+
+            for (let segment of snake) {
+                if (head.x === segment.x && head.y === segment.y) {
+                    endGame();
+                    return;
+                }
+            }
+
+snake.unshift(head);
+
+            if (head.x === food.x && head.y === food.y) {
+                score++;
+                updateScore();
+                const tailDirX = snake[snake.length - 1].x - snake[snake.length - 2].x;
+                const tailDirY = snake[snake.length - 1].y - snake[snake.length - 2].y;
+                snake.reverse();
+                direction = { x: tailDirX, y: tailDirY };
+                nextDirection = { x: direction.x, y: direction.y };
+                clearInterval(gameLoop);
+                gameLoop = setInterval(gameStep, getSpeed());
+                placeFood();
+            } else {
+                snake.pop();
+                for (let i = 1; i < snake.length; i++) {
+                    if (snake[0].x === snake[i].x && snake[0].y === snake[i].y) {
+                        endGame();
+                        return;
+                    }
+                }
+            }
+
+            draw();
+        }
+
+        function endGame() {
+            gameOver = true;
+            messageEl.textContent = 'Игра окончена! Нажмите Enter для рестарта';
+            clearInterval(gameLoop);
+        }
+
+        function draw() {
+            ctx.fillStyle = '#16213e';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            for (let i = 0; i < snake.length; i++) {
+                ctx.fillStyle = i === 0 ? '#facc15' : '#4ade80';
+                ctx.fillRect(snake[i].x * gridSize + 1, snake[i].y * gridSize + 1, gridSize - 2, gridSize - 2);
+            }
+
+            ctx.fillStyle = '#ef4444';
+            ctx.fillRect(food.x * gridSize + 2, food.y * gridSize + 2, gridSize - 4, gridSize - 4);
+        }
+
+        document.addEventListener('keydown', function(e) {
+            if (gameOver) {
+                if (e.key === 'Enter') init();
+                return;
+            }
+
+            switch (e.key) {
+                case 'ArrowUp':
+                    if (direction.y !== 1) nextDirection = { x: 0, y: -1 };
+                    break;
+                case 'ArrowDown':
+                    if (direction.y !== -1) nextDirection = { x: 0, y: 1 };
+                    break;
+                case 'ArrowLeft':
+                    if (direction.x !== 1) nextDirection = { x: -1, y: 0 };
+                    break;
+                case 'ArrowRight':
+                    if (direction.x !== -1) nextDirection = { x: 1, y: 0 };
+                    break;
+            }
+        });
+
+        init();
+    </script>
+</body>
+</html>
