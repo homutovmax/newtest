@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self';">
+<title>История вакансий</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<main>
+<h1>История вакансий</h1>
+
+<table>
+<thead>
+<tr>
+  <th>ID</th>
+  <th>Название</th>
+  <th>Компания</th>
+  <th>Категория</th>
+  <th>Статус</th>
+  <th>Впервые</th>
+  <th>Последний раз</th>
+</tr>
+</thead>
+<tbody>
+{% for v in vacancies %}
+<tr>
+  <td><code>{{ v.id }}</code></td>
+  <td><a href="{{ v.url }}" target="_blank">{{ v.title }}</a></td>
+  <td>{{ v.company }}</td>
+  <td>{{ scenario_label(v.category) }}</td>
+  <td>
+    {% if v.status == 'new' %}<span class="status-tag status-new">new</span>
+    {% else %}<span class="status-tag status-active">{{ v.status }}</span>{% endif %}
+  </td>
+  <td>{{ v.first_seen }}</td>
+  <td>{{ v.last_seen }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+
+<p style="margin-top: 20px;">
+  <a href="/report">← К подборке</a>
+</p>
+
+</main>
+</body>
+</html>

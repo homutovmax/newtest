@@ -1,0 +1,6 @@
+media_player.smart_tv_2 | on | Smart TV
+media_player.smart_tv | off | Smart TV
+media_player.h96_94 | unavailable | H96-94
+media_player.h96_94_2 | idle | H96-94
+media_player.yandex_station_r1099440084h0y | idle | Яндекс Станция Миди
+media_player.yandex_station_m10ns3600380kb | idle | Станция Мини new 80KB

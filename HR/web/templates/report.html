@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self';">
+<title>Подборка вакансий — {{ today }}</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<main>
+<h1>Подборка вакансий</h1>
+<p class="subtitle">
+  Для Максима Хомутова · Обновлено {{ today }}
+   <a href="/analytics" class="analytics-btn">📊 Аналитика</a>
+   <a href="/monitoring" class="analytics-btn" style="background:#6c757d">📈 Pipeline</a>
+</p>
+
+<div class="stats">
+  <div class="stat-card">
+    <div class="num">{{ total }}</div>
+    <div class="label">Всего</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ hh_count }}</div>
+    <div class="label">hh.ru</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ habr_count }}</div>
+    <div class="label">Habr Career</div>
+  </div>
+  <div class="stat-card">
+    <div class="num">{{ new_today }}</div>
+    <div class="label">Новых сегодня</div>
+  </div>
+</div>
+
+<div class="tabs">
+  <a class="tab-btn{% if active_tab == 'all' %} active{% endif %}" href="/report?tab=all">📋 Все {{ total }}</a>
+  <a class="tab-btn{% if active_tab == 'telecom' %} active{% endif %}" href="/report?tab=telecom">📡 Telecom / IT</a>
+  <a class="tab-btn{% if active_tab == 'ai' %} active{% endif %}" href="/report?tab=ai">🤖 AI / Product</a>
+  <a class="tab-btn{% if active_tab == 'strategy' %} active{% endif %}" href="/report?tab=strategy">🎯 Strategic</a>
+  <a class="tab-btn{% if active_tab == 'ba' %} active{% endif %}" href="/report?tab=ba">📊 Business Analysis</a>
+  <a class="tab-btn{% if active_tab == 'other' %} active{% endif %}" href="/report?tab=other">📁 Other</a>
+</div>
+
+{% for v in vacancies %}
+<div class="vacancy">
+  <h3>{{ v.title }}</h3>
+  <div class="company">{{ v.company }}</div>
+  <div class="meta">
+    {% if v.location %}{{ v.location }} · {% endif %}
+    {% if v.salary %}{{ v.salary }} · {% endif %}
+    {{ v.source }}
+    {% if v.status == 'new' %}<span class="status-tag status-new">новое</span>{% endif %}
+  </div>
+  <div class="actions">
+    <a href="{{ v.url }}" target="_blank">Открыть</a>
+    <a href="/cover/{{ v.id }}">Сопроводительное</a>
+    <a href="/resume?title={{ v.title|urlencode }}&company={{ v.company|urlencode }}">Резюме</a>
+  </div>
+</div>
+{% else %}
+<p>Нет вакансий.</p>
+{% endfor %}
+
+</main>
+</body>
+</html>

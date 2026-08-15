@@ -1,0 +1,38 @@
+import paramiko, time
+
+ssh = paramiko.SSHClient()
+ssh.set_missing_host_key_policy(paramiko.AutoAddPolicy())
+ssh.connect('192.168.1.92', username='root', password='CHANGE_ME', timeout=10)
+
+def run(cmd, timeout=10):
+    stdin, stdout, stderr = ssh.exec_command(cmd, timeout=timeout)
+    code = stdout.channel.recv_exit_status()
+    out = stdout.read().decode().strip()
+    return out
+
+run('systemctl stop tailscaled 2>/dev/null; rm -rf /var/lib/tailscale; systemctl start tailscaled')
+time.sleep(5)
+
+# Background with explicit output redirects  
+run('nohup tailscale up --accept-dns=false > /tmp/ts_out.txt 2>&1 &
+echo "PID=$!"
+sleep 8
+cat /tmp/ts_out.txt 2>/dev/null || echo "FILE NOT READY"', timeout=15)
+
+out = run('cat /tmp/ts_out.txt 2>/dev/null || echo "EMPTY"')
+print('Content:', out[:500])
+
+# If not ready, wait and try again
+if 'EMPTY' in out or not out.strip():
+    time.sleep(6)
+    out = run('cat /tmp/ts_out.txt 2>/dev/null || echo "EMPTY2"')
+    print('Content2:', out[:500])
+
+import re
+urls = re.findall(r'https://[^\s]+', out)
+for u in urls:
+    print(f'\n=== ССЫЛКА АКТИВНА ===')
+    print(u)
+    print('Зайдите в браузер, откройте ссылку, нажмите Connect')
+
+ssh.close()

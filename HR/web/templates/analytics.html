@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self';">
+<title>Аналитика вакансий</title>
+<link rel="stylesheet" href="/static/style.css">
+<style>
+.chart { margin: 20px 0; }
+.bar { display: flex; align-items: center; margin-bottom: 8px; }
+.bar .label { width: 140px; font-size: 0.88em; color: #555; }
+.bar .fill { height: 24px; border-radius: 6px; display: flex; align-items: center; padding: 0 10px; color: #fff; font-size: 0.82em; font-weight: 600; min-width: 30px; }
+.fill.telecom { background: #6c757d; }
+.fill.ai_product { background: #28a745; }
+.fill.strategy { background: #fd7e14; }
+.fill.ba { background: #17a2b8; }
+.fill.unknown { background: #6f42c1; }
+.section { background: #fff; border-radius: 10px; padding: 16px 20px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.section h2 { font-size: 1.1em; color: #2c3e50; margin-bottom: 12px; }
+.issue { color: #dc3545; }
+.issue.ok { color: #28a745; }
+table.issues td { font-size: 0.82em; }
+ul.clean { list-style: none; padding: 0; }
+ul.clean li { padding: 4px 0; font-size: 0.88em; color: #555; }
+</style>
+</head>
+<body>
+
+<main>
+<h1>Аналитика подборки вакансий</h1>
+<p class="subtitle">Мониторинг работы скрапера и качества данных</p>
+
+<div class="stats">
+  <div class="stat-card"><div class="num">{{ total }}</div><div class="label">Всего</div></div>
+  <div class="stat-card"><div class="num">{{ new_today }}</div><div class="label">Новых сегодня</div></div>
+  <div class="stat-card"><div class="num">{{ by_source.get('hh.ru', 0) }}</div><div class="label">hh.ru</div></div>
+  <div class="stat-card"><div class="num">{{ by_source.get('Habr Career', 0) }}</div><div class="label">Habr Career</div></div>
+</div>
+
+<div class="section">
+  <h2>Распределение по категориям</h2>
+  {% set labels = {'telecom': 'Telecom / IT', 'ai_product': 'AI / Product', 'strategy': 'Strategic', 'ba': 'Business Analysis', 'unknown': 'Other'} %}
+  {% set values = [by_category.get('telecom', 0), by_category.get('ai_product', 0), by_category.get('strategy', 0), by_category.get('ba', 0), by_category.get('unknown', 0)] %}
+  {% set max_val = (values + [1]) | max %}
+  {% for cat, label in [('telecom','Telecom / IT'), ('ai_product','AI / Product'), ('strategy','Strategic'), ('ba','Business Analysis'), ('unknown','Other')] %}
+  {% set count = by_category.get(cat, 0) %}
+  <div class="bar">
+    <div class="label">{{ label }}</div>
+    <div class="fill {{ cat }}" style="width: {{ (count / max_val * 100) | int }}%">{{ count }}</div>
+  </div>
+  {% endfor %}
+</div>
+
+<div class="section">
+  <h2>Статусы</h2>
+  <ul class="clean">
+    <li><strong>new:</strong> {{ by_status.get('new', 0) }}</li>
+    <li><strong>active:</strong> {{ by_status.get('active', 0) }}</li>
+    <li><strong>closed:</strong> {{ by_status.get('closed', 0) }}</li>
+  </ul>
+</div>
+
+<div class="section">
+  <h2>Проверки качества</h2>
+  <table class="issues">
+    <thead>
+    <tr>
+      <th>Проверка</th>
+      <th>Значение</th>
+      <th>Статус</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td>Без зарплаты (пусто/скрыто)</td>
+      <td class="{{ 'issue' if no_salary > 100 else 'issue ok' }}">{{ no_salary }} / {{ total }}</td>
+      <td>{{ 'Приемлемо' if no_salary < 500 else 'Многовато' }}</td>
+    </tr>
+    <tr>
+      <td>Без категории (unknown)</td>
+      <td class="{{ 'issue' if by_category.get('unknown', 0) > 200 else 'issue ok' }}">{{ by_category.get('unknown', 0) }} / {{ total }}</td>
+      <td>{{ 'OK' if by_category.get('unknown', 0) < 300 else 'Много неклассифицированных' }}</td>
+    </tr>
+    <tr>
+      <td>С длинным company (>200 символов)</td>
+      <td class="issue">{{ long_company | length }}</td>
+      <td>Содержат CSS/HTML</td>
+    </tr>
+    </tbody>
+  </table>
+
+  {% if long_company %}
+  <h3 style="margin-top:16px; font-size:0.95em; color:#856404;">Проблемные записи (company содержит CSS)</h3>
+  <table>
+    <thead>
+    <tr><th>ID</th><th>Название</th><th>company (первые 80 символов)</th></tr>
+    </thead>
+    <tbody>
+    {% for v in long_company %}
+    <tr>
+      <td><a href="/cover/{{ v[0] }}">{{ v[0][:20] }}</a></td>
+      <td>{{ v[1][:50] }}</td>
+      <td style="font-size:0.78em;color:#999;">{{ v[2][:80] }}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% endif %}
+</div>
+
+<div class="section">
+  <h2>Распределение по категориям (таблица)</h2>
+  <table>
+    <thead>
+    <tr><th>Категория</th><th>Количество</th><th>Доля</th></tr>
+    </thead>
+    <tbody>
+    {% for cat, count in by_category | dictsort(by='value', reverse=true) %}
+    <tr>
+      <td>{{ labels.get(cat, cat) }}</td>
+      <td>{{ count }}</td>
+      <td>{{ (count / total * 100) | round(1) }}%</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<p style="margin-top: 20px;">
+  <a href="/report">← К подборке</a> ·
+  <a href="/monitoring">📈 Pipeline</a>
+</p>
+
+</main>
+</body>
+</html>

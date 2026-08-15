@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; connect-src 'self';">
+<title>Резюме — Максим Хомутов</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<main>
+<div class="resume-container">
+  <h2>Максим Хомутов</h2>
+  <p><strong>Целевая позиция:</strong> {{ title }}{% if company %} · {{ company }}{% endif %}</p>
+  <p><strong>Сценарий:</strong> {{ cat_label }}</p>
+  <hr style="margin: 16px 0; border: none; border-top: 1px solid #eee;">
+
+  {% if scenario == 1 %}
+  <div class="section">
+    <h3>Ключевые компетенции</h3>
+    <ul>
+      <li>Управление жизненным циклом крупных ИТ-продуктов</li>
+      <li>Внедрение AI-решений в клиентский сервис</li>
+      <li>Стратегическое развитие технологической платформы</li>
+      <li>Управление распределёнными командами (3+ команды, вендоры)</li>
+      <li>Методологии: Agile, гибрид, управление изменениями</li>
+    </ul>
+  </div>
+  <div class="section">
+    <h3>Опыт</h3>
+    <p><strong>МТС (2021–2026)</strong> — Руководитель направления трайба «Клиентский сервис»</p>
+    <p>Управление тремя командами платформы клиентского опыта: продукт, ML, DevOps. Технологическая стратегия кластера CX, повышение техзрелости до 4/5.</p>
+    <p><strong>СИБУР (2018–2020)</strong> — Главный эксперт / руководитель группы бизнес-анализа</p>
+    <p>Создание подразделения с нуля, внедрение change management для ERP/MES/CRM/LIMS.</p>
+  </div>
+
+  {% elif scenario == 2 %}
+  <div class="section">
+    <h3>Ключевые компетенции</h3>
+    <ul>
+      <li>AI-продуктовый менеджмент: от гипотезы до промышленной эксплуатации</li>
+      <li>GenAI (суфлер, ассистенты), NLP (орфография, ToV), роботизация КЦ</li>
+      <li>R&D-конвейер: 100+ гипотез/неделю</li>
+      <li>Управление Data Governance в AI-продуктах</li>
+    </ul>
+  </div>
+  <div class="section">
+    <h3>Опыт</h3>
+    <p><strong>МТС (2021–2026)</strong> — Руководитель AI-направления</p>
+    <p>Запустил 5 AI-продуктов: GenAI-суфлер в голосе, NLP-инструменты в чате, платформа роботизации КЦ. Построил R&D-конвейер.</p>
+  </div>
+
+  {% elif scenario == 3 %}
+  <div class="section">
+    <h3>Ключевые компетенции</h3>
+    <ul>
+      <li>Цифровая трансформация и технологическая стратегия</li>
+      <li>Change management и оптимизация бизнес-процессов</li>
+      <li>Построение подразделений с нуля</li>
+      <li>Управление бюджетом 500 млн+ руб.</li>
+    </ul>
+  </div>
+  <div class="section">
+    <h3>Опыт</h3>
+    <p><strong>МТС (2021–2026)</strong> — Руководитель технологической стратегии кластера CX</p>
+    <p>Разработал стратегию, дорожную карту. Техзрелость выросла до 4/5. Оптимизация релизного цикла.</p>
+    <p><strong>Ростелеком (2020–2021)</strong> — Оптимизация кабельных столов</p>
+    <p>Аудит, BPMN-моделирование, внедрение изменений — сокращение численности.</p>
+  </div>
+
+  {% elif scenario == 4 %}
+  <div class="section">
+    <h3>Ключевые компетенции</h3>
+    <ul>
+      <li>Построение функции бизнес-анализа с нуля</li>
+      <li>Управление требованиями на всём жизненном цикле</li>
+      <li>BPMN, UML, EPC, Camunda</li>
+      <li>Методология, регламенты, SLA, KPI</li>
+    </ul>
+  </div>
+  <div class="section">
+    <h3>Опыт</h3>
+    <p><strong>СИБУР (2018–2020)</strong> — Главный эксперт / руководитель группы БА</p>
+    <p>Создал подразделение с нуля (6+5 удалённых): оргструктура, найм, методология. Внедрил change management для ERP/MES/CRM/LIMS.</p>
+    <p><strong>МГТС (2013–2018)</strong> — Начальник отдела взаимодействия с бизнес-заказчиками</p>
+    <p>Разработка требований для GPON и B2B/B2C-продуктов, управление приёмкой.</p>
+  </div>
+  {% endif %}
+
+  <hr style="margin: 20px 0; border: none; border-top: 1px solid #eee;">
+  <p style="font-size: 0.85em; color: #999;">
+    +7 (916) 4573969 · homutov.m@gmail.com · Королёв (Москва)
+  </p>
+</div>
+</main>
+</body>
+</html>
